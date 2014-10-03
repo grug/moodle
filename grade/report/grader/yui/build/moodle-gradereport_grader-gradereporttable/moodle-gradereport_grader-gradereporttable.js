@@ -284,13 +284,13 @@ FloatingHeaders.prototype = {
     footerRow: null,
 
     /**
-     * A Node representing the floating assignment header.
+     * A Node representing the floating grade item header.
      *
-     * @property assignmentHeadingContainer
+     * @property gradeItemHeadingContainer
      * @type Node
      * @protected
      */
-    assignmentHeadingContainer: null,
+    gradeItemHeadingContainer: null,
 
     /**
      * A Node representing the floating user header. This is the header with the Surname/First name
@@ -438,7 +438,7 @@ FloatingHeaders.prototype = {
      * @protected
      */
     _calculateCellPositions: function() {
-        // The header row shows the assigment headers and is floated to the top of the window.
+        // The header row shows the grade item headers and is floated to the top of the window.
         this.headerRowTop = this.headerRow.getY();
 
         // The footer row shows the grade averages and will be floated to the page bottom.
@@ -485,6 +485,13 @@ FloatingHeaders.prototype = {
         if (header) {
             if (header.getComputedStyle('position') === 'fixed') {
                 this.pageHeaderHeight = header.get(OFFSETHEIGHT);
+            } else {
+                var navbar = Y.one('.navbar');
+
+                if (navbar) {
+                    // If the navbar exists and isn't fixed, we need to offset the page header to accommodate for it.
+                    this.pageHeaderHeight = navbar.get(OFFSETHEIGHT);
+                }
             }
         }
     },
@@ -667,7 +674,7 @@ FloatingHeaders.prototype = {
     },
 
     /**
-     * Create and setup the floating assignment header row.
+     * Create and setup the floating grade item header row.
      *
      * @method _setupFloatingAssignmentHeaders
      * @protected
@@ -723,11 +730,11 @@ FloatingHeaders.prototype = {
         this.userColumnHeader.insert(floatingGradeHeaders, 'before');
 
         // Store a reference to this for later - we use it in the event handlers.
-        this.assignmentHeadingContainer = floatingGradeHeaders;
+        this.gradeItemHeadingContainer = floatingGradeHeaders;
     },
 
     /**
-     * Create and setup the floating header row of assignment titles.
+     * Create and setup the floating header row of grade item titles.
      *
      * @method _setupFloatingAssignmentFooter
      * @protected
@@ -859,7 +866,7 @@ FloatingHeaders.prototype = {
         // updates must be batched.
 
         // Next do all the calculations.
-        var assignmentHeadingContainerStyles = {},
+        var gradeItemHeadingContainerStyles = {},
             userColumnHeaderStyles = {},
             userColumnStyles = {},
             footerStyles = {},
@@ -875,22 +882,22 @@ FloatingHeaders.prototype = {
             floatingFooterTitleRow = false;
 
         // Header position.
-        assignmentHeadingContainerStyles.left = this._getRelativeXFromX(this.headerRow.getX());
+        gradeItemHeadingContainerStyles.left = this._getRelativeXFromX(this.headerRow.getX());
         if (Y.config.win.pageYOffset + this.pageHeaderHeight > this.headerRowTop) {
             headerFloats = true;
             if (Y.config.win.pageYOffset + this.pageHeaderHeight < this.lastUserCellTop) {
                 coord = this._getRelativeYFromY(Y.config.win.pageYOffset + this.pageHeaderHeight);
-                assignmentHeadingContainerStyles.top = coord + 'px';
+                gradeItemHeadingContainerStyles.top = coord + 'px';
                 userColumnHeaderStyles.top = coord + 'px';
             } else {
                 coord = this._getRelativeYFromY(this.lastUserCellTop);
-                assignmentHeadingContainerStyles.top = coord + 'px';
+                gradeItemHeadingContainerStyles.top = coord + 'px';
                 userColumnHeaderStyles.top = coord + 'px';
             }
         } else {
             headerFloats = false;
             coord = this._getRelativeYFromY(this.headerRowTop);
-            assignmentHeadingContainerStyles.top = coord + 'px';
+            gradeItemHeadingContainerStyles.top = coord + 'px';
             userColumnHeaderStyles.top = coord + 'px';
         }
 
@@ -955,11 +962,11 @@ FloatingHeaders.prototype = {
         }
 
         // Apply the styles.
-        this.assignmentHeadingContainer.setStyles(assignmentHeadingContainerStyles);
+        this.gradeItemHeadingContainer.setStyles(gradeItemHeadingContainerStyles);
         this.userColumnHeader.setStyles(userColumnHeaderStyles);
         this.userColumn.setStyles(userColumnStyles);
         this.footerRow.setStyles(footerStyles);
-        
+
         // And apply the styles to the generic left headers.
         Y.Object.each(floatingHeaderStyles, function(styles, key) {
             this.floatingHeaderRow[key].setStyles(styles);
@@ -967,9 +974,9 @@ FloatingHeaders.prototype = {
 
         // Mark the elements as floating, or not.
         if (headerFloats) {
-            this.assignmentHeadingContainer.addClass(CSS.FLOATING);
+            this.gradeItemHeadingContainer.addClass(CSS.FLOATING);
         } else {
-            this.assignmentHeadingContainer.removeClass(CSS.FLOATING);
+            this.gradeItemHeadingContainer.removeClass(CSS.FLOATING);
         }
 
         if (userFloats) {
@@ -1031,7 +1038,7 @@ FloatingHeaders.prototype = {
 
         // Resize headers & footers.
         // This is an expensive operation, not expected to happen often.
-        var headers = this.assignmentHeadingContainer.all('.cell');
+        var headers = this.gradeItemHeadingContainer.all('.cell');
         var resizedcells = Y.all(SELECTORS.HEADERCELLS);
 
         var headeroffsetleft = this.headerRow.getX();
@@ -1068,7 +1075,7 @@ FloatingHeaders.prototype = {
             row.one('div').setStyle('width', userWidth);
         }, this);
 
-        this.assignmentHeadingContainer.setStyle('width', newcontainerwidth);
+        this.gradeItemHeadingContainer.setStyle('width', newcontainerwidth);
     }
 
 };
