@@ -767,11 +767,25 @@ class gradingform_rubric_instance extends gradingform_instance {
         if (!isset($elementvalue['criteria']) || !is_array($elementvalue['criteria']) || sizeof($elementvalue['criteria']) < sizeof($criteria)) {
             return false;
         }
+        $atleastonegraded = false;
+        $atleastoneempty = false;
         foreach ($criteria as $id => $criterion) {
+            if (!isset($elementvalue['criteria'][$id]['levelid'])
+                    && empty($elementvalue['criteria'][$id]['remark'])
+                    && !$atleastonegraded) {
+                $atleastoneempty = true;
+                continue;
+            }
             if (!isset($elementvalue['criteria'][$id]['levelid'])
                     || !array_key_exists($elementvalue['criteria'][$id]['levelid'], $criterion['levels'])) {
                 return false;
             }
+            $atleastonegraded = true;
+        }
+        if ($atleastonegraded
+                && $atleastoneempty
+                && count($elementvalue['criteria']) > 1) {
+            return false;
         }
         return true;
     }
@@ -805,6 +819,15 @@ class gradingform_rubric_instance extends gradingform_instance {
         global $DB;
         $currentgrade = $this->get_rubric_filling();
         parent::update($data);
+
+        // If all grades are empty, do not update.
+        $data['criteria'] = array_filter($data['criteria'], function($record) {
+            return !empty($record['levelid']);
+        });
+        if (empty($data['criteria'])) {
+            return -1;
+        }
+
         foreach ($data['criteria'] as $criterionid => $record) {
             if (!array_key_exists($criterionid, $currentgrade['criteria'])) {
                 $newrecord = array('instanceid' => $this->get_id(), 'criterionid' => $criterionid,
@@ -841,6 +864,16 @@ class gradingform_rubric_instance extends gradingform_instance {
      */
     public function get_grade() {
         $grade = $this->get_rubric_filling();
+
+        if (empty($grade['criteria'])) {
+            return -1;
+        }
+
+        $countcriteria = count($this->get_controller()->get_definition()->rubric_criteria);
+        $countfillings = count($grade['criteria']);
+        if ($countfillings < $countcriteria) {
+            return -1;
+        }
 
         if (!($scores = $this->get_controller()->get_min_max_score()) || $scores['maxscore'] <= $scores['minscore']) {
             return -1;
