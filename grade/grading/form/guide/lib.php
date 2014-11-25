@@ -770,13 +770,29 @@ class gradingform_guide_instance extends gradingform_instance {
         }
         // Reset validation errors.
         $this->validationerrors = null;
+        $atleastonegraded = false;
+        $atleastoneempty = false;
         foreach ($criteria as $id => $criterion) {
+            // It is valid for the score and remark to be empty.
+            if (empty($elementvalue['criteria'][$id]['score'])
+                    && empty($elementvalue['criteria'][$id]['remark'])
+                    && !$atleastonegraded) {
+                $atleastoneempty = true;
+                continue;
+            }
             if (!isset($elementvalue['criteria'][$id]['score'])
                     || $criterion['maxscore'] < $elementvalue['criteria'][$id]['score']
                     || !is_numeric($elementvalue['criteria'][$id]['score'])
                     || $elementvalue['criteria'][$id]['score'] < 0) {
                 $this->validationerrors[$id]['score'] =  $elementvalue['criteria'][$id]['score'];
             }
+            $atleastonegraded = true;
+        }
+        // If user has entered grades for only part of the criterion and there are multiple criterion.
+        if ($atleastonegraded
+                && $atleastoneempty
+                && count($elementvalue['criteria']) > 1) {
+            return false;
         }
         if (!empty($this->validationerrors)) {
             return false;
@@ -850,6 +866,9 @@ class gradingform_guide_instance extends gradingform_instance {
      */
     public function get_grade() {
         $grade = $this->get_guide_filling();
+        if (empty($grade['criteria'])) {
+            return -1;
+        }
 
         if (!($scores = $this->get_controller()->get_min_max_score()) || $scores['maxscore'] <= $scores['minscore']) {
             return -1;
