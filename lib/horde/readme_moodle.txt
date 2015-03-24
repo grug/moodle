@@ -4,8 +4,8 @@ Description of import of Horde libraries
   around for future updates:
     git clone git@github.com:horde/horde.git
 # Checkout the version of horde you require:
-    git checkout horde-5.2.1
-# Copy the following script, change it's execute bit, and run it, passing
+    git checkout tags/horde-5.2.4
+# Copy the following script, change it's execute bit, and run it (from the root of your Moodle instance), passing
   in your path to Horde:
     /tmp/copyhorde.sh ~/git/ext/horde/framework
 
