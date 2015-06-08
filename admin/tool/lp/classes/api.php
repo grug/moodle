@@ -1229,4 +1229,37 @@ class api {
         $competencyfrom->set_sortorder($competencyto->get_sortorder());
         return $competencyfrom->update();
     }
+
+    /**
+     * Perform a search based on the provided filters and return a paginated list of records.
+     *
+     * Requires tool/lp:templateread capability at the system context.
+     * @throw required_capability_exception In case of not enough permissions.
+     * @param array $filters A list of filters to apply to the list.
+     * @param string $sort The column to sort on
+     * @param string $order ('ASC' or 'DESC')
+     * @param int $skip Number of records to skip (pagination)
+     * @param int $limit Max of records to return (pagination)
+     * @return array of competency_framework
+     */
+    public static function list_evidences($filters = array(), $sort = '', $order = 'ASC', $skip = 0, $limit = 0) {
+        // First we do a permissions check.
+        $context = context_system::instance();
+
+        /**
+         * Learning plans caps.
+         *
+         * tool_lp/evidence:manageown - can attach evidence of prior learning to a competency in any of their active learning plans
+         * tool_lp/evidence:manageany can edit the evidence for any other user
+         * tool_lp/plancompetency:approve can then review the evidence and either approve or deny the request
+         * (with a text comment). Approving the request will mark the competency as met.
+         */
+//        $caps = array('tool/lp:templateread', 'tool/lp:templatemanage');
+//        if (!has_any_capability($caps, $context)) {
+//            throw new required_capability_exception($context, 'tool/lp:templateread', 'nopermissions', '');
+//        }
+
+        $evidence = new evidence();
+        return $evidence->get_records($filters, $sort, $order, $skip, $limit);
+    }
 }

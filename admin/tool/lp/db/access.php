@@ -125,5 +125,30 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         ),
         'clonepermissionsfrom' =>  'moodle/site:backup'
-    )
+    ),
+    'tool_lp/evidence:manageown' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_USER,
+        'archetypes' => array(
+        ),
+        'clonepermissionsfrom' =>  'moodle/site:config'
+    ),
+    'tool_lp/evidence:manageany' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_USER,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' =>  'moodle/block:view'
+    ),
+    'tool_lp/plancompetency:approve' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_USER,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' =>  'moodle/site:backup'
+    ),
 );
